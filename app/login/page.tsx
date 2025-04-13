@@ -7,12 +7,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Building2, ArrowLeft, Mail, Linkedin } from "lucide-react"
+import { signInClient } from "@/components/auth-client"
+import { useToast } from "@/components/ui/use-toast"
 
+// Import all UI components properly
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   email: z.string().email({
@@ -27,6 +29,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,18 +39,48 @@ export default function LoginPage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
+    setError(null)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      toast({
-        title: "Logged in successfully",
-        description: "Welcome back to VendorHub.",
+    try {
+      // Use signInClient from our auth helper - this will redirect
+      await signInClient("credentials", {
+        email: values.email,
+        password: values.password,
+        callbackUrl: "/dashboard"
       })
-      router.push("/dashboard")
-    }, 1500)
+
+      // Note: The code below won't execute since signInClient redirects
+      toast({
+        title: "Redirecting...",
+        description: "Taking you to the login page.",
+      })
+      
+    } catch (error) {
+      setError("An unexpected error occurred")
+      toast({
+        title: "Authentication failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+    }
+  }
+
+  const handleSocialLogin = async (provider: string) => {
+    try {
+      setIsLoading(true)
+      await signInClient(provider, { callbackUrl: "/dashboard" })
+    } catch (error) {
+      console.error(error)
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -59,22 +92,38 @@ export default function LoginPage() {
               <Building2 className="h-10 w-10 text-emerald-600" />
             </div>
             <h1 className="text-3xl font-bold">Welcome back</h1>
-            <p className="text-gray-500">Log in to your vendor account</p>
+            <p className="text-gray-500">Log in to your account</p>
           </div>
 
+          {error && (
+            <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-4">
-            <Button variant="outline" className="w-full" disabled={isLoading}>
-              <Linkedin className="mr-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={isLoading}
+              onClick={() => handleSocialLogin("linkedin")}
+            >
+              <Linkedin className="h-4 w-4" />
               Log in with LinkedIn
             </Button>
-            <Button variant="outline" className="w-full" disabled={isLoading}>
-              <Mail className="mr-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={isLoading}
+              onClick={() => handleSocialLogin("google")}
+            >
+              <Mail className="h-4 w-4" />
               Log in with Google
             </Button>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <Separator />
+                <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-white px-2 text-gray-500">Or continue with</span>
