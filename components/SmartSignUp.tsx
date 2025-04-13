@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInClient } from './auth-client';
+import { signInWithProvider } from '@/components/auth-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { FcGoogle } from 'react-icons/fc';
 import { FaLinkedin } from 'react-icons/fa';
-import { registerUser } from '@/app/actions/smart-auth';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface SmartSignUpProps {
   className?: string;
@@ -21,17 +21,10 @@ export function SmartSignUp({ className, callbackUrl = '/dashboard' }: SmartSign
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   /**
    * Handle social sign in using the client-side auth helper
@@ -40,50 +33,68 @@ export function SmartSignUp({ className, callbackUrl = '/dashboard' }: SmartSign
     try {
       setIsLoading(true);
       setError(null);
-      await signInClient(provider, { callbackUrl });
+      // Use the proper signInWithProvider function
+      signInWithProvider(provider);
     } catch (error) {
       console.error('Social sign-in error:', error);
       setError('An error occurred during social sign-in. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
 
   /**
-   * Handle form submission using server action
+   * Handle form submission for registration
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
+    // Basic validation
+    if (password !== confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
       return;
     }
 
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // Create FormData to use with server action
-      const data = new FormData();
-      data.append('name', formData.name);
-      data.append('email', formData.email);
-      data.append('password', formData.password);
+      // Create FormData for the registration request
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('password', password);
 
-      // Use server action for registration
-      const result = await registerUser(data);
+      // We'll implement the server action later
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          name,
+          email,
+          password
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-      if ('error' in result) {
-        setError(result.error);
-      } else {
-        // On success, redirect to the specified URL or use the one from result
-        router.push(result.redirectUrl || callbackUrl);
-        router.refresh();
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
-    } catch (error) {
+
+      // On successful registration, redirect to sign-in page
+      router.push('/signin?registered=true');
+      router.refresh();
+    } catch (error: any) {
       console.error('Registration error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      setError(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -139,12 +150,11 @@ export function SmartSignUp({ className, callbackUrl = '/dashboard' }: SmartSign
             <Label htmlFor="name">Full Name</Label>
             <Input
               id="name"
-              name="name"
               type="text"
               placeholder="John Doe"
               required
-              value={formData.name}
-              onChange={handleChange}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
             />
           </div>
@@ -153,12 +163,11 @@ export function SmartSignUp({ className, callbackUrl = '/dashboard' }: SmartSign
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              name="email"
               type="email"
               placeholder="name@company.com"
               required
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
             />
           </div>
@@ -167,24 +176,22 @@ export function SmartSignUp({ className, callbackUrl = '/dashboard' }: SmartSign
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
-              name="password"
               type="password"
               required
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input
               id="confirmPassword"
-              name="confirmPassword"
               type="password"
               required
-              value={formData.confirmPassword}
-              onChange={handleChange}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isLoading}
             />
           </div>
@@ -194,15 +201,15 @@ export function SmartSignUp({ className, callbackUrl = '/dashboard' }: SmartSign
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" 
             disabled={isLoading}
           >
-            {isLoading ? 'Creating account...' : 'Create account'}
+            {isLoading ? 'Creating account...' : 'Sign up'}
           </Button>
         </form>
 
         <div className="text-center text-sm">
           Already have an account?{' '}
-          <a href="/signin" className="font-medium text-emerald-600 hover:underline">
+          <Link href="/signin" className="font-medium text-emerald-600 hover:underline">
             Sign in
-          </a>
+          </Link>
         </div>
       </div>
     </div>

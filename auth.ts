@@ -67,6 +67,8 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // Allow users to link Google accounts with the same email
+      allowDangerousEmailAccountLinking: true,
     }),
     LinkedInProvider({
       clientId: process.env.LINKEDIN_CLIENT_ID!,
@@ -77,6 +79,8 @@ const authOptions: NextAuthOptions = {
         }
       },
       wellKnown: "https://www.linkedin.com/oauth/.well-known/openid-configuration",
+      // Allow users to link LinkedIn accounts with the same email
+      allowDangerousEmailAccountLinking: true,
       profile(profile) {
         return {
           id: profile.sub,
@@ -98,7 +102,7 @@ const authOptions: NextAuthOptions = {
 
         try {
           const client = await clientPromise
-          const db = client.db(process.env.MONGODB_DB as string)
+          const db = client.db('smartlink') // Explicitly use 'smartlink' database
           const user = await db.collection("users").findOne({ email: credentials.email }) as User | null
 
           // Check if user exists and has a password (password could be undefined for social logins)
@@ -124,7 +128,9 @@ const authOptions: NextAuthOptions = {
       }
     })
   ],
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise, {
+    databaseName: 'smartlink' // Explicitly use 'smartlink' database
+  }),
   // Explicit JWT configuration to fix decryption errors
   jwt: {
     // Explicitly specify the encryption/decryption mechanism

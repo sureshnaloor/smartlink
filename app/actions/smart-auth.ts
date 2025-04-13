@@ -21,40 +21,33 @@ type AuthResult =
   | { error: string }
 
 /**
- * Authenticate user with credentials (for server validation only)
- * The actual sign-in happens on the client with next-auth/react
+ * Server-side authentication validation for credentials
  */
-export async function authenticateWithCredentials(
-  formData: FormData
-): Promise<AuthResult> {
+export async function authenticateWithCredentials(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  if (!email || !password) {
+    return { error: 'Email and password are required' };
+  }
+
   try {
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db('smartlink'); // Explicitly use 'smartlink' database
     
-    if (!email || !password) {
-      return { error: "Email and password are required" }
+    // Check if user exists (actual password check is done by NextAuth in the auth.ts file)
+    const user = await db.collection('users').findOne({ email });
+    
+    if (!user) {
+      return { error: 'Invalid email or password' };
     }
-
-    // In NextAuth.js v4, we need to validate credentials on the server
-    // but perform the actual sign-in on the client
-    const client = await clientPromise
-    const db = client.db(process.env.MONGODB_DB as string)
-    const user = await db.collection("users").findOne({ email })
-
-    if (!user || !user.password) {
-      return { error: "Invalid email or password" }
-    }
-
-    const isPasswordValid = await verifyPassword(password, user.password)
-    if (!isPasswordValid) {
-      return { error: "Invalid email or password" }
-    }
-
-    // If validation passes, client will handle the actual sign-in
-    return { success: true }
+    
+    // Return success (actual password validation happens in NextAuth)
+    return { success: true };
   } catch (error) {
-    console.error("Authentication error:", error)
-    return { error: "An unexpected error occurred" }
+    console.error('Error during credential validation:', error);
+    return { error: 'An error occurred during authentication' };
   }
 }
 

@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { FcGoogle } from 'react-icons/fc';
 import { FaLinkedin } from 'react-icons/fa';
-import { authenticateWithCredentials } from '@/app/actions/smart-auth';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface SmartSignInProps {
   className?: string;
@@ -32,7 +32,7 @@ export function SmartSignIn({ className, callbackUrl = '/dashboard' }: SmartSign
       setIsLoading(true);
       setError(null);
       // Use the proper signInWithProvider function
-      signInWithProvider(provider);
+      signInWithProvider(provider, { callbackUrl });
     } catch (error) {
       console.error('Social sign-in error:', error);
       setError('An error occurred during social sign-in. Please try again.');
@@ -41,8 +41,7 @@ export function SmartSignIn({ className, callbackUrl = '/dashboard' }: SmartSign
   };
 
   /**
-   * Handle form submission using server action first to validate,
-   * then client-side signIn to establish the session
+   * Handle form submission using client-side auth helper
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,27 +49,15 @@ export function SmartSignIn({ className, callbackUrl = '/dashboard' }: SmartSign
     setError(null);
 
     try {
-      // Create FormData to use with server action
-      const formData = new FormData();
-      formData.append('email', email);
-      formData.append('password', password);
-
-      // Use server action for credential validation
-      const validationResult = await authenticateWithCredentials(formData);
-
-      if ('error' in validationResult) {
-        setError(validationResult.error);
+      // Use client-side signIn to create the session
+      const signInResult = await signInWithCredentials(email, password, { callbackUrl });
+      
+      if (signInResult.success) {
+        // On success, redirect and refresh
+        router.push(signInResult.url || callbackUrl);
+        router.refresh();
       } else {
-        // If validation passes, use client-side signIn to create the session
-        const signInResult = await signInWithCredentials(email, password);
-        
-        if (signInResult.success) {
-          // On success, redirect and refresh
-          router.push(callbackUrl);
-          router.refresh();
-        } else {
-          setError(signInResult.error || 'Authentication failed');
-        }
+        setError(signInResult.error || 'Authentication failed');
       }
     } catch (error) {
       console.error('Authentication error:', error);
@@ -142,12 +129,12 @@ export function SmartSignIn({ className, callbackUrl = '/dashboard' }: SmartSign
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <a 
+              <Link 
                 href="/forgot-password" 
                 className="text-sm font-medium text-emerald-600 hover:underline"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <Input
               id="password"
@@ -170,9 +157,9 @@ export function SmartSignIn({ className, callbackUrl = '/dashboard' }: SmartSign
 
         <div className="text-center text-sm">
           Don't have an account?{' '}
-          <a href="/signup" className="font-medium text-emerald-600 hover:underline">
+          <Link href="/signup" className="font-medium text-emerald-600 hover:underline">
             Sign up
-          </a>
+          </Link>
         </div>
       </div>
     </div>
