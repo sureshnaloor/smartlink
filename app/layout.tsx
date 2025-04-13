@@ -5,6 +5,8 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { SessionProvider } from "@/components/session-provider"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,7 +28,13 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem
           disableTransitionOnChange
           >
-            {children}
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
             <Toaster />
           </ThemeProvider>
         </SessionProvider>
