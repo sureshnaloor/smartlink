@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X, User, LogIn, Settings, LogOut } from "lucide-react";
+import { Menu, X, User, LogIn, Settings, LogOut, Bell } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { useState } from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Badge } from "./ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +17,53 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { NotificationDropdown } from "./NotificationDropdown";
+
+// Sample notifications data - in a real app, this would come from an API
+const sampleNotifications = [
+  {
+    id: "1",
+    type: "message" as const,
+    title: "New message from ABC Corp",
+    description: "We've reviewed your proposal and would like to schedule a meeting to discuss further.",
+    time: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+    read: false,
+    link: "/dashboard/messages",
+  },
+  {
+    id: "2",
+    type: "document" as const,
+    title: "Document approved",
+    description: "Your tax compliance certificate has been approved and is now available in your documents section.",
+    time: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+    read: false,
+    link: "/dashboard/documents",
+  },
+  {
+    id: "3",
+    type: "alert" as const,
+    title: "Certification expiring soon",
+    description: "Your safety certification will expire in 15 days. Please submit updated documents.",
+    time: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+    read: false,
+    link: "/dashboard/certifications",
+  },
+  {
+    id: "4",
+    type: "message" as const,
+    title: "Message from XYZ Inc",
+    description: "Thank you for the quick turnaround on the project. We're very satisfied with the results.",
+    time: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
+    read: true,
+    link: "/dashboard/messages",
+  },
+];
 
 export function Header() {
   const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // State for notifications
+  const [notifications, setNotifications] = useState(sampleNotifications);
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -29,6 +73,23 @@ export function Header() {
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
+  };
+
+  const handleMarkAllAsRead = () => {
+    setNotifications(
+      notifications.map(notification => ({
+        ...notification,
+        read: true
+      }))
+    );
+  };
+
+  const handleNotificationClick = (id: string) => {
+    setNotifications(
+      notifications.map(notification => 
+        notification.id === id ? { ...notification, read: true } : notification
+      )
+    );
   };
 
   return (
@@ -62,6 +123,15 @@ export function Header() {
         {/* Actions Section (right side) */}
         <div className="flex items-center gap-4">
           <ThemeToggle />
+          
+          {/* Notifications - Only show if logged in */}
+          {session && (
+            <NotificationDropdown 
+              notifications={notifications}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onNotificationClick={handleNotificationClick}
+            />
+          )}
           
           {/* Authentication / Profile */}
           {session ? (

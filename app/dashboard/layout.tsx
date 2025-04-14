@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactNode } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   FileText,
@@ -10,6 +13,7 @@ import {
   Settings,
   LogOut,
   Menu,
+  Bell,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -30,9 +34,9 @@ export default function DashboardLayout({
             <span className="sr-only">Toggle menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+        <SheetContent side="left" className="w-[240px] sm:w-[300px] border-r border-gray-200 dark:border-gray-800 p-0">
           <div className="flex h-full flex-col">
-            <div className="flex items-center gap-2 py-4 font-semibold text-xl">
+            <div className="flex items-center gap-2 p-4 border-b border-gray-200 dark:border-gray-800 font-semibold text-xl bg-white dark:bg-gray-950">
               <Image 
                 src="/images/vendorhub-logo.jpg" 
                 alt="VendorHub Logo" 
@@ -40,9 +44,9 @@ export default function DashboardLayout({
                 height={28}
                 className="rounded-sm" 
               />
-              <span>VendorHub</span>
+              <span className="text-gray-900 dark:text-gray-100">VendorHub</span>
             </div>
-            <nav className="flex-1 space-y-1 py-4">
+            <nav className="flex-1 space-y-1 py-4 bg-gray-50 dark:bg-gray-900 h-full">
               <MobileNavLinks />
             </nav>
           </div>
@@ -50,8 +54,8 @@ export default function DashboardLayout({
       </Sheet>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col border-r bg-gray-50">
-        <div className="p-4 border-b flex items-center gap-2">
+      <aside className="hidden lg:flex w-64 flex-col border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center gap-2 bg-white dark:bg-gray-950">
           <Image 
             src="/images/vendorhub-logo.jpg" 
             alt="VendorHub Logo" 
@@ -59,7 +63,7 @@ export default function DashboardLayout({
             height={24}
             className="rounded-sm" 
           />
-          <span className="font-semibold">VendorHub</span>
+          <span className="font-semibold text-gray-900 dark:text-gray-100">VendorHub</span>
         </div>
         <div className="flex flex-col gap-1 p-4">
           <DesktopNavLinks />
@@ -73,123 +77,125 @@ export default function DashboardLayout({
 }
 
 function DesktopNavLinks() {
+  const pathname = usePathname()
+  
   return (
     <>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard">
-          <LayoutDashboard className="mr-2 h-4 w-4" />
-          Dashboard
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/profile">
-          <FileText className="mr-2 h-4 w-4" />
-          Company Profile
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/certifications">
-          <FileText className="mr-2 h-4 w-4" />
-          Certifications
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/experience">
-          <Users className="mr-2 h-4 w-4" />
-          Past Experience
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/financials">
-          <FileText className="mr-2 h-4 w-4" />
-          Financial Information
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/personnel">
-          <Users className="mr-2 h-4 w-4" />
-          Key Personnel
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/documents">
-          <Upload className="mr-2 h-4 w-4" />
-          Documents
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/messages">
-          <MessageSquare className="mr-2 h-4 w-4" />
-          Messages
-        </Link>
-      </Button>
-      <Button variant="ghost" className="justify-start" asChild>
-        <Link href="/dashboard/settings">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Link>
-      </Button>
+      <NavLink href="/dashboard" active={pathname === "/dashboard"}>
+        <LayoutDashboard className="mr-2 h-4 w-4" />
+        Dashboard
+      </NavLink>
+      <NavLink href="/dashboard/profile" active={pathname === "/dashboard/profile"}>
+        <FileText className="mr-2 h-4 w-4" />
+        Company Profile
+      </NavLink>
+      <NavLink href="/dashboard/certifications" active={pathname === "/dashboard/certifications"}>
+        <FileText className="mr-2 h-4 w-4" />
+        Certifications
+      </NavLink>
+      <NavLink href="/dashboard/experience" active={pathname === "/dashboard/experience"}>
+        <Users className="mr-2 h-4 w-4" />
+        Past Experience
+      </NavLink>
+      <NavLink href="/dashboard/financials" active={pathname === "/dashboard/financials"}>
+        <FileText className="mr-2 h-4 w-4" />
+        Financial Information
+      </NavLink>
+      <NavLink href="/dashboard/personnel" active={pathname === "/dashboard/personnel"}>
+        <Users className="mr-2 h-4 w-4" />
+        Key Personnel
+      </NavLink>
+      <NavLink href="/dashboard/documents" active={pathname === "/dashboard/documents"}>
+        <Upload className="mr-2 h-4 w-4" />
+        Documents
+      </NavLink>
+      <NavLink href="/dashboard/messages" active={pathname === "/dashboard/messages"}>
+        <MessageSquare className="mr-2 h-4 w-4" />
+        Messages
+      </NavLink>
+      <NavLink href="/dashboard/notifications" active={pathname === "/dashboard/notifications"}>
+        <Bell className="mr-2 h-4 w-4" />
+        Notifications
+      </NavLink>
+      <NavLink href="/dashboard/settings" active={pathname === "/dashboard/settings"}>
+        <Settings className="mr-2 h-4 w-4" />
+        Settings
+      </NavLink>
     </>
   )
 }
 
 function MobileNavLinks() {
+  const pathname = usePathname()
+  
   return (
     <>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard">
-          <LayoutDashboard className="mr-2 h-4 w-4" />
-          Dashboard
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/profile">
-          <FileText className="mr-2 h-4 w-4" />
-          Company Profile
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/certifications">
-          <FileText className="mr-2 h-4 w-4" />
-          Certifications
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/experience">
-          <Users className="mr-2 h-4 w-4" />
-          Past Experience
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/financials">
-          <FileText className="mr-2 h-4 w-4" />
-          Financial Information
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/personnel">
-          <Users className="mr-2 h-4 w-4" />
-          Key Personnel
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/documents">
-          <Upload className="mr-2 h-4 w-4" />
-          Documents
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/messages">
-          <MessageSquare className="mr-2 h-4 w-4" />
-          Messages
-        </Link>
-      </Button>
-      <Button variant="ghost" className="w-full justify-start" asChild>
-        <Link href="/dashboard/settings">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Link>
-      </Button>
+      <NavLink href="/dashboard" active={pathname === "/dashboard"} mobile>
+        <LayoutDashboard className="mr-2 h-4 w-4" />
+        Dashboard
+      </NavLink>
+      <NavLink href="/dashboard/profile" active={pathname === "/dashboard/profile"} mobile>
+        <FileText className="mr-2 h-4 w-4" />
+        Company Profile
+      </NavLink>
+      <NavLink href="/dashboard/certifications" active={pathname === "/dashboard/certifications"} mobile>
+        <FileText className="mr-2 h-4 w-4" />
+        Certifications
+      </NavLink>
+      <NavLink href="/dashboard/experience" active={pathname === "/dashboard/experience"} mobile>
+        <Users className="mr-2 h-4 w-4" />
+        Past Experience
+      </NavLink>
+      <NavLink href="/dashboard/financials" active={pathname === "/dashboard/financials"} mobile>
+        <FileText className="mr-2 h-4 w-4" />
+        Financial Information
+      </NavLink>
+      <NavLink href="/dashboard/personnel" active={pathname === "/dashboard/personnel"} mobile>
+        <Users className="mr-2 h-4 w-4" />
+        Key Personnel
+      </NavLink>
+      <NavLink href="/dashboard/documents" active={pathname === "/dashboard/documents"} mobile>
+        <Upload className="mr-2 h-4 w-4" />
+        Documents
+      </NavLink>
+      <NavLink href="/dashboard/messages" active={pathname === "/dashboard/messages"} mobile>
+        <MessageSquare className="mr-2 h-4 w-4" />
+        Messages
+      </NavLink>
+      <NavLink href="/dashboard/notifications" active={pathname === "/dashboard/notifications"} mobile>
+        <Bell className="mr-2 h-4 w-4" />
+        Notifications
+      </NavLink>
+      <NavLink href="/dashboard/settings" active={pathname === "/dashboard/settings"} mobile>
+        <Settings className="mr-2 h-4 w-4" />
+        Settings
+      </NavLink>
     </>
+  )
+}
+
+function NavLink({ href, active, mobile, children }: { 
+  href: string; 
+  active?: boolean;
+  mobile?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button 
+      variant={active ? "default" : "ghost"} 
+      className={`${mobile ? "w-full" : ""} justify-start ${
+        active 
+          ? "bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30 dark:hover:text-blue-200" 
+          : "text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+      }`}
+      asChild
+    >
+      <Link href={href}>
+        {children}
+        {active && (
+          <div className="ml-auto w-1 h-6 bg-blue-500 dark:bg-blue-400 rounded-full" />
+        )}
+      </Link>
+    </Button>
   )
 }
