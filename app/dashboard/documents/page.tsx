@@ -13,6 +13,9 @@ import {
   AlertCircle,
   Search,
   Filter,
+  Building,
+  FileCheck,
+  FileSpreadsheet
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -34,7 +37,7 @@ import { useToast } from "@/hooks/use-toast"
 type Document = {
   id: number
   name: string
-  category: string
+  category: "Registration" | "Tax" | "Compliance" | "License" | "Other"
   uploadDate: string
   expiryDate?: string
   status: "active" | "expiring-soon" | "expired"
@@ -49,72 +52,132 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([
     {
       id: 1,
-      name: "ISO 9001 Certificate",
-      category: "Certification",
+      name: "Company Registration Certificate",
+      category: "Registration",
       uploadDate: "2023-05-15",
       expiryDate: "2025-05-15",
       status: "active",
       fileType: "PDF",
-      fileSize: "2.4 MB",
+      fileSize: "1.2 MB",
       url: "#",
       color: "from-blue-500 to-cyan-400",
     },
     {
       id: 2,
-      name: "Company Brochure",
-      category: "Marketing",
+      name: "VAT Certificate",
+      category: "Tax",
       uploadDate: "2023-06-10",
+      expiryDate: "2024-06-10",
       status: "active",
       fileType: "PDF",
-      fileSize: "5.1 MB",
+      fileSize: "0.8 MB",
       url: "#",
       color: "from-emerald-500 to-teal-400",
     },
     {
       id: 3,
-      name: "Product Catalog 2023",
-      category: "Marketing",
+      name: "ZAKAT Certificate",
+      category: "Tax",
       uploadDate: "2023-01-20",
+      expiryDate: "2024-01-20",
       status: "active",
       fileType: "PDF",
-      fileSize: "12.7 MB",
+      fileSize: "0.7 MB",
       url: "#",
       color: "from-indigo-500 to-purple-400",
     },
     {
       id: 4,
-      name: "Insurance Policy",
+      name: "GOSI Certificate",
       category: "Compliance",
       uploadDate: "2023-03-05",
-      expiryDate: "2024-03-05",
+      expiryDate: "2023-12-25",
       status: "expiring-soon",
       fileType: "PDF",
-      fileSize: "1.8 MB",
+      fileSize: "0.9 MB",
       url: "#",
       color: "from-amber-500 to-yellow-400",
     },
     {
       id: 5,
-      name: "Tax Compliance Certificate",
+      name: "Civil Defense Certificate",
       category: "Compliance",
       uploadDate: "2022-07-12",
       expiryDate: "2023-07-12",
       status: "expired",
       fileType: "PDF",
-      fileSize: "0.9 MB",
+      fileSize: "1.1 MB",
       url: "#",
       color: "from-rose-500 to-pink-400",
     },
     {
       id: 6,
-      name: "Project Portfolio",
-      category: "Marketing",
+      name: "Bank Letter",
+      category: "Other",
       uploadDate: "2023-04-18",
       status: "active",
       fileType: "PDF",
-      fileSize: "8.3 MB",
+      fileSize: "0.5 MB",
       url: "#",
       color: "from-sky-500 to-blue-400",
+    },
+    {
+      id: 7,
+      name: "Saudization Certificate",
+      category: "Compliance",
+      uploadDate: "2023-02-22",
+      expiryDate: "2024-02-22",
+      status: "active",
+      fileType: "PDF",
+      fileSize: "0.6 MB",
+      url: "#",
+      color: "from-green-500 to-emerald-400",
+    },
+    {
+      id: 8,
+      name: "Partnership Contract/MOU",
+      category: "Registration",
+      uploadDate: "2022-11-05",
+      status: "active",
+      fileType: "PDF",
+      fileSize: "2.3 MB",
+      url: "#",
+      color: "from-purple-500 to-violet-400",
+    },
+    {
+      id: 9,
+      name: "Industrial License",
+      category: "License",
+      uploadDate: "2023-01-30",
+      expiryDate: "2025-01-30",
+      status: "active",
+      fileType: "PDF",
+      fileSize: "1.4 MB",
+      url: "#",
+      color: "from-orange-500 to-amber-400",
+    },
+    {
+      id: 10,
+      name: "Investment License",
+      category: "License",
+      uploadDate: "2022-09-15",
+      expiryDate: "2024-09-15",
+      status: "active",
+      fileType: "PDF",
+      fileSize: "1.2 MB",
+      url: "#",
+      color: "from-cyan-500 to-blue-400",
+    },
+    {
+      id: 11,
+      name: "Appreciation Certificate",
+      category: "Other",
+      uploadDate: "2023-03-12",
+      status: "active",
+      fileType: "PDF",
+      fileSize: "1.0 MB",
+      url: "#",
+      color: "from-yellow-500 to-amber-400",
     },
   ])
 
@@ -148,27 +211,52 @@ export default function DocumentsPage() {
 
     // Filter by tab
     if (activeTab === "all") return matchesSearch
-    if (activeTab === "certifications") return matchesSearch && doc.category === "Certification"
+    if (activeTab === "registration") return matchesSearch && doc.category === "Registration"
+    if (activeTab === "tax") return matchesSearch && doc.category === "Tax"
     if (activeTab === "compliance") return matchesSearch && doc.category === "Compliance"
-    if (activeTab === "marketing") return matchesSearch && doc.category === "Marketing"
+    if (activeTab === "license") return matchesSearch && doc.category === "License"
+    if (activeTab === "other") return matchesSearch && doc.category === "Other"
 
     return matchesSearch
   })
+
+  const getIconForCategory = (category: string) => {
+    switch (category) {
+      case "Registration":
+        return <Building className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
+      case "Tax":
+        return <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
+      case "Compliance":
+        return <FileCheck className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
+      case "License":
+        return <FileText className="h-3.5 w-3.5 mr-1.5 text-purple-500" />
+      default:
+        return <FileText className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+    }
+  }
 
   return (
     <div className="bg-zinc-50 min-h-screen pb-10">
       <div className="container px-6 md:px-8 lg:px-12 py-8 max-w-6xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Documents</h1>
-            <p className="text-gray-500 text-sm">Manage your company documents, brochures, and catalogs</p>
+            <h1 className="text-2xl font-bold tracking-tight">Company Documents</h1>
+            <p className="text-gray-500 text-sm">Manage certificates, licenses, and regulatory compliance documents</p>
           </div>
-          <Button className="bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all" asChild>
-            <Link href="/dashboard/documents/upload">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Upload Document
-            </Link>
-          </Button>
+          <div className="flex gap-3">
+            <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md hover:shadow-lg transition-all text-xs" asChild>
+              <Link href="/dashboard/documents/upload">
+                <PlusCircle className="mr-2 h-3.5 w-3.5" />
+                Upload Document
+              </Link>
+            </Button>
+            <Button variant="outline" className="border-gray-300 hover:bg-gray-50 text-xs shadow-sm" asChild>
+              <Link href="/dashboard/multimedia">
+                <FileText className="mr-2 h-3.5 w-3.5" />
+                Multimedia
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4">
@@ -176,7 +264,7 @@ export default function DocumentsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-500" />
             <Input
               placeholder="Search documents..."
-              className="pl-9 h-9 text-sm bg-white/70"
+              className="pl-9 h-9 text-xs bg-white/70"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -190,52 +278,52 @@ export default function DocumentsPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-xs">
               <DropdownMenuItem onClick={() => setActiveTab("all")}>All Documents</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab("certifications")}>Certifications</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab("registration")}>Registration</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab("tax")}>Tax</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setActiveTab("compliance")}>Compliance</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab("marketing")}>Marketing</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab("license")}>Licenses</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab("other")}>Other</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-white/60 border border-gray-200 p-0.5">
-            <TabsTrigger value="all" className="text-xs">All Documents</TabsTrigger>
-            <TabsTrigger value="certifications" className="text-xs">Certifications</TabsTrigger>
+            <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+            <TabsTrigger value="registration" className="text-xs">Registration</TabsTrigger>
+            <TabsTrigger value="tax" className="text-xs">Tax</TabsTrigger>
             <TabsTrigger value="compliance" className="text-xs">Compliance</TabsTrigger>
-            <TabsTrigger value="marketing" className="text-xs">Marketing</TabsTrigger>
+            <TabsTrigger value="license" className="text-xs">Licenses</TabsTrigger>
+            <TabsTrigger value="other" className="text-xs">Other</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredDocuments.map((doc) => (
-                <DocumentCard key={doc.id} document={doc} onDelete={confirmDelete} />
+                <DocumentCard 
+                  key={doc.id} 
+                  document={doc} 
+                  onDelete={confirmDelete} 
+                  getIcon={getIconForCategory}
+                />
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="certifications" className="mt-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredDocuments.map((doc) => (
-                <DocumentCard key={doc.id} document={doc} onDelete={confirmDelete} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="compliance" className="mt-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredDocuments.map((doc) => (
-                <DocumentCard key={doc.id} document={doc} onDelete={confirmDelete} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="marketing" className="mt-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredDocuments.map((doc) => (
-                <DocumentCard key={doc.id} document={doc} onDelete={confirmDelete} />
-              ))}
-            </div>
-          </TabsContent>
+          {["registration", "tax", "compliance", "license", "other"].map((tab) => (
+            <TabsContent key={tab} value={tab} className="mt-6">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filteredDocuments.map((doc) => (
+                  <DocumentCard 
+                    key={doc.id} 
+                    document={doc} 
+                    onDelete={confirmDelete} 
+                    getIcon={getIconForCategory}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+          ))}
         </Tabs>
 
         {filteredDocuments.length === 0 && (
@@ -280,7 +368,15 @@ export default function DocumentsPage() {
   )
 }
 
-function DocumentCard({ document, onDelete }: { document: Document; onDelete: (id: number) => void }) {
+function DocumentCard({ 
+  document, 
+  onDelete,
+  getIcon
+}: { 
+  document: Document; 
+  onDelete: (id: number) => void;
+  getIcon: (category: string) => React.ReactNode;
+}) {
   return (
     <Card className="overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl shadow-lg border-0">
       <div className={`h-2 w-full bg-gradient-to-r ${document.color}`}></div>
@@ -288,8 +384,13 @@ function DocumentCard({ document, onDelete }: { document: Document; onDelete: (i
         <div className="absolute top-0 right-0 bottom-0 left-0 bg-gradient-to-br from-white/80 to-transparent z-0"></div>
         <div className="flex items-start justify-between relative z-10">
           <div className="space-y-1">
-            <CardTitle className="text-base font-semibold">{document.name}</CardTitle>
-            <CardDescription className="text-xs">{document.category}</CardDescription>
+            <div className="flex items-center">
+              {getIcon(document.category)}
+              <CardTitle className="text-base font-semibold">{document.name}</CardTitle>
+            </div>
+            <CardDescription className="text-xs flex items-center">
+              {document.category}
+            </CardDescription>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

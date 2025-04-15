@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   Bell,
+  FileImage,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -109,6 +110,10 @@ function DesktopNavLinks() {
         <Upload className="mr-2 h-4 w-4" />
         Documents
       </NavLink>
+      <NavLink href="/dashboard/multimedia" active={pathname === "/dashboard/multimedia"}>
+        <FileImage className="mr-2 h-4 w-4" />
+        Multimedia Documents
+      </NavLink>
       <NavLink href="/dashboard/messages" active={pathname === "/dashboard/messages"}>
         <MessageSquare className="mr-2 h-4 w-4" />
         Messages
@@ -157,6 +162,10 @@ function MobileNavLinks() {
       <NavLink href="/dashboard/documents" active={pathname === "/dashboard/documents"} mobile>
         <Upload className="mr-2 h-4 w-4" />
         Documents
+      </NavLink>
+      <NavLink href="/dashboard/multimedia" active={pathname === "/dashboard/multimedia"} mobile>
+        <FileImage className="mr-2 h-4 w-4" />
+        Multimedia Documents
       </NavLink>
       <NavLink href="/dashboard/messages" active={pathname === "/dashboard/messages"} mobile>
         <MessageSquare className="mr-2 h-4 w-4" />
