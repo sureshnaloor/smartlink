@@ -2,6 +2,7 @@
 const nextConfig = {
   env: {
     MONGODB_URI: process.env.MONGODB_URI,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     // ... other env variables
   },
   // ESLint and TypeScript config for development
