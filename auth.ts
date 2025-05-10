@@ -30,6 +30,11 @@ const authOptions: NextAuthOptions = {
     verifyRequest: "/verify-request",
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Use the baseUrl from environment variables
+      if (url.startsWith('/')) return `${baseUrl}${url}`
+      return url
+    },
     async jwt({ token, user, account }: { token: JWT; user?: any; account?: Account | null }) {
       if (account && user) {
         return {
@@ -150,4 +155,4 @@ const authOptions: NextAuthOptions = {
 export default NextAuth(authOptions)
 
 // Export authOptions for use in other files
-export { authOptions } 
+export { authOptions }

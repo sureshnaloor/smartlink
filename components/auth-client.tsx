@@ -72,8 +72,12 @@ export const handleSignOut = () => {
 export function AuthStatus() {
   const { data: session, status } = useSession()
   
+  if (status === "loading") {
+    return <div>Loading...</div>
+  }
+
   return (
-    <div>
+    <div className="auth-status">
       {status === "authenticated" ? (
         <div>
           Signed in as {session?.user?.email || "User"}
@@ -89,4 +93,4 @@ export function AuthStatus() {
       )}
     </div>
   )
-} 
+}
